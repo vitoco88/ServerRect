@@ -192,6 +192,7 @@ tDiscapacidadObs,  lRatificacion, tCodGrado,tNivel, tEstadoRegistro
       //    await t.rollback();
     //       res.status(404).json({ msg: 'Producto no encontrado' });
 //       }
+
   } catch (error) {
       // Si ocurrió un error, deshacemos la transacción
       await t.rollback();

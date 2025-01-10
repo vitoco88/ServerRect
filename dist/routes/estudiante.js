@@ -1,0 +1,14 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const estudiante_1 = require("../controllers/estudiante");
+const router = (0, express_1.Router)();
+router.get('/:tNroDocumento', estudiante_1.getEstudiantes);
+router.get('/cod/distritos', estudiante_1.getDistritos);
+router.get('/cod/nivel', estudiante_1.getNiveles);
+router.get('/cod/Grado', estudiante_1.getGrado);
+router.get('/cod/TipoDocumento', estudiante_1.getTipoDocumento);
+router.get('/cod/:tCodEstudiante', estudiante_1.getEstudiante);
+router.post('/', estudiante_1.postEstudiante);
+router.put('/cod/:tCodEstudiante', estudiante_1.updateEstudiante);
+exports.default = router;

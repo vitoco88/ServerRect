@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateEstudiante = exports.postEstudiante = exports.getEstudiante = exports.getEstudiantes = exports.getGrado = exports.getNiveles = exports.getTipoDocumento = exports.getDistritos = void 0;
+exports.MatricularEstudiante = exports.updateEstudiante = exports.ValidaNroDocumentoEstudiante = exports.getEstudiante = exports.getEstudianteUnico = exports.getEstudiantes = exports.getGrado = exports.getNiveles = exports.getTipoDocumento = exports.getDistritos = void 0;
 const sequelize_1 = require("../models/sequelize");
 const getDistritos = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -18,7 +18,7 @@ const getDistritos = (req, res) => __awaiter(void 0, void 0, void 0, function* (
         res.json(results); // Enviar los resultados al frontend
     }
     catch (error) {
-        console.error('Error fetching data:', error);
+        //  console.error('Error fetching data:', error);
         res.status(500).json({ error: 'Error fetching data from database' });
     }
 });
@@ -30,7 +30,7 @@ const getTipoDocumento = (req, res) => __awaiter(void 0, void 0, void 0, functio
         res.json(results); // Enviar los resultados al frontend
     }
     catch (error) {
-        console.error('Error fetching data:', error);
+        // console.error('Error fetching data:', error);
         res.status(500).json({ error: 'Error fetching data from database' });
     }
 });
@@ -40,10 +40,10 @@ const getNiveles = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         const query = `SELECT tCodigo, tDetallado FROM vNivel`; // Tu consulta SQL aquí
         const results = yield sequelize_1.sequelize.query(query, { type: sequelize_1.QueryTypes.SELECT });
         res.json(results); // Enviar los resultados al frontend
-        console.log(results);
+        //   console.log(results);
     }
     catch (error) {
-        console.error('Error fetching data:', error);
+        //  console.error('Error fetching data:', error);
         res.status(500).json({ error: 'Error fetching data from database' });
     }
 });
@@ -55,7 +55,7 @@ const getGrado = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         res.json(results); // Enviar los resultados al frontend
     }
     catch (error) {
-        console.error('Error fetching data:', error);
+        //  console.error('Error fetching data:', error);
         res.status(500).json({ error: 'Error fetching data from database' });
     }
 });
@@ -84,7 +84,7 @@ ORDER BY m.tCodEstudiante asc`, {
         // Mostrar los resultados
         //        console.log(results);
         // Verificar que results es un array
-        console.log(typeof results);
+        //  console.log(typeof results);
         if (Array.isArray(results)) {
             res.json(results); // Devolver los resultados como un array de objetos
         }
@@ -93,10 +93,47 @@ ORDER BY m.tCodEstudiante asc`, {
         }
     }
     catch (error) {
-        console.error('Error al obtener los datos:', error);
+        //   console.error('Error al obtener los datos:', error);
     }
 });
 exports.getEstudiantes = getEstudiantes;
+const getEstudianteUnico = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { tNroDocumento } = req.params;
+    try {
+        // Realizar la consulta SQL cruda con LEFT JOIN
+        const results = yield sequelize_1.sequelize.query(`select  e.tCodEstudiante, e.tNroDocumento, (e.tAPaterno + ' ' +e.tAMaterno +', '+ tNombres) as tApellidosNombres, e.tnivel, 
+n.tdetallado as tDetNivel, g.tdetallado as tDetGrado, r.tDetallado as tDetEstadoRegistro,
+e.fRegistro, e.tNroDocumentoRepre, e.tAPaternoRepre, e.tAMaternoRepre, e.tNombresRepre, e.tTipoDocumentoRepre, e.tDireccionRepre, e.tTelefonoRepre, e.tEmailRepre, e.tCodParentescoRepre
+from TESTUDIANTEAPODERADO m
+right join TESTUDIANTE e on m.tcodEstudiante = e.tcodestudiante
+left join TAPODERADO A ON M.tCodApoderado = A.tCodApoderado
+left join VNIVEL n on e.tnivel = n.tcodigo
+left join (select * from TTABLA where ttabla = 'grado')  g on e.tCodGrado = g.tcodigo
+left join vestadoregistro r on e.tEstadoRegistro = r.Tcodigo
+WHERE e.tNroDocumento = :tNroDocumento
+group by  e.tCodEstudiante, e.tNroDocumento, e.tAPaterno,e.tAMaterno , tNombres, e.tnivel, 
+n.tdetallado, g.tdetallado, r.tDetallado,
+e.fRegistro, e.tNroDocumentoRepre, e.tAPaternoRepre, e.tAMaternoRepre, e.tNombresRepre, e.tTipoDocumentoRepre, e.tDireccionRepre, e.tTelefonoRepre, e.tEmailRepre, e.tCodParentescoRepre
+ORDER BY e.tCodEstudiante asc`, {
+            replacements: { tNroDocumento },
+            type: sequelize_1.QueryTypes.SELECT
+        });
+        // Mostrar los resultados
+        //        console.log(results);
+        // Verificar que results es un array
+        //  console.log(typeof results);
+        if (Array.isArray(results)) {
+            res.json(results); // Devolver los resultados como un array de objetos
+        }
+        else {
+            res.status(500).json({ error: 'No se encontraron resultados.' });
+        }
+    }
+    catch (error) {
+        //   console.error('Error al obtener los datos:', error);
+    }
+});
+exports.getEstudianteUnico = getEstudianteUnico;
 const getEstudiante = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { tCodEstudiante } = req.params; // Obtener el parámetro `tCodEstudiante` de la URL
     // Realizar la consulta SQL con `await`
@@ -105,7 +142,10 @@ const getEstudiante = (req, res) => __awaiter(void 0, void 0, void 0, function* 
               tCodTipoDocumento, tNroDocumento, fNacimiento,
               tSexo, tCodDistrito, tDireccion, tTelefono, tEmail,
               tCodGrado, lActivo, lDiscapacidad, tDiscapacidadObs,
-              lExonaradoR, tNivel, s.tDetallado as tDetSexo, lRatificacion
+              lExonaradoR, tNivel, s.tDetallado as tDetSexo, lRatificacion, tEstadoRegistro, tCodSeguro, tVive, tApoderado, lHermanos, 
+                    tNroDocumentoRepre      ,tAPaternoRepre      ,tAMaternoRepre      ,tNombresRepre      ,tTipoDocumentoRepre      ,tParentescoRepre
+      ,tDireccionRepre      ,tTelefonoRepre      ,tEmailRepre      ,tCodParentescoRepre
+
        FROM TESTUDIANTE e
        left join vSexo s ON e.tsexo = s.tCodigo
        WHERE tCodEstudiante = :tCodEstudiante`, // Usar el parámetro en la consulta
@@ -113,21 +153,25 @@ const getEstudiante = (req, res) => __awaiter(void 0, void 0, void 0, function* 
         replacements: { tCodEstudiante }, // Pasar el valor del parámetro como `replacements`
         type: sequelize_1.QueryTypes.SELECT
     });
-    console.log(result);
+    // console.log(result);
     res.json(result); // Enviar los resultados como respuesta
 });
 exports.getEstudiante = getEstudiante;
-const postEstudiante = (req, res) => {
-    const { body } = req;
-    res.json({
-        msg: 'getProd',
-        body
+const ValidaNroDocumentoEstudiante = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { tNroDocumento } = req.params; // Obtener el parámetro `tCodEstudiante` de la URL
+    // Realizar la consulta SQL con `await`
+    const [result] = yield sequelize_1.sequelize.query(`select count(*) as nCantExiste from TESTUDIANTE where tNroDocumento = :tNroDocumento`, // Usar el parámetro en la consulta
+    {
+        replacements: { tNroDocumento }, // Pasar el valor del parámetro como `replacements`
+        type: sequelize_1.QueryTypes.SELECT
     });
-};
-exports.postEstudiante = postEstudiante;
+    // console.log(result);
+    res.json(result); // Enviar los resultados como respuesta    
+});
+exports.ValidaNroDocumentoEstudiante = ValidaNroDocumentoEstudiante;
 const updateEstudiante = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { tCodEstudiante } = req.params; // Suponiendo que el ID del producto se pasa como parámetro en la URL.
-    const { tTelefono, tDireccion, tEmail, tCodDistrito, lExonaradoR, lDiscapacidad, tDiscapacidadObs, lRatificacion, tCodGrado, tNivel, tEstadoRegistro } = req.body; // Suponiendo que los nuevos valores del producto se pasan en el cuerpo de la solicitud.
+    const { tTelefono, tDireccion, tEmail, tCodDistrito, lExonaradoR, lDiscapacidad, tDiscapacidadObs, lRatificacion, tCodGrado, tNivel, tEstadoRegistro, tCodSeguro, tVive, lHermanos, tApoderado, tAMaternoRepre, tAPaternoRepre, tCodParentescoRepre, tDireccionRepre, tEmailRepre, tNombresRepre, tTipoDocumentoRepre, tNroDocumentoRepre, tTelefonoRepre } = req.body; // Suponiendo que los nuevos valores del producto se pasan en el cuerpo de la solicitud.
     // Inicia una transacción
     const t = yield sequelize_1.sequelize.transaction();
     try {
@@ -143,12 +187,29 @@ const updateEstudiante = (req, res) => __awaiter(void 0, void 0, void 0, functio
           lRatificacion= :lRatificacion,
           tCodGrado = :tCodGrado,
           tNivel = :tNivel,
+          tApoderado = :tApoderado,
+          tVive = :tVive,
+          tCodSeguro = :tCodSeguro,
+          lHermanos= :lHermanos,
           tEstadoRegistro = :tEstadoRegistro,
-          fRegistro = getDate()
+          fRegistro = getDate(),
+          tNroDocumentoRepre = :tNroDocumentoRepre,
+          tAPaternoRepre = :tAPaternoRepre,
+          tAMaternoRepre = :tAMaternoRepre,
+          tNombresRepre = :tNombresRepre,
+          tTipoDocumentoRepre= :tTipoDocumentoRepre,
+          tDireccionRepre = :tDireccionRepre,
+          tTelefonoRepre = :tTelefonoRepre,
+          tEmailRepre = :tEmailRepre,
+          tCodParentescoRepre = :tCodParentescoRepre
       WHERE tCodEstudiante = :tCodEstudiante`, {
-            replacements: { tCodEstudiante, tTelefono, tDireccion,
+            replacements: {
+                tCodEstudiante, tTelefono, tDireccion,
                 tEmail, tCodDistrito, lExonaradoR, lDiscapacidad, tDiscapacidadObs, lRatificacion,
-                tCodGrado, tNivel, tEstadoRegistro
+                tCodGrado, tNivel, tEstadoRegistro, tApoderado, tVive, lHermanos, tCodSeguro,
+                tNroDocumentoRepre, tAPaternoRepre, tAMaternoRepre,
+                tNombresRepre, tTipoDocumentoRepre, tDireccionRepre,
+                tTelefonoRepre, tEmailRepre, tCodParentescoRepre
             },
             type: sequelize_1.QueryTypes.UPDATE,
             transaction: t, // Aquí indicamos que esta consulta debe usar la transacción `t`
@@ -174,3 +235,168 @@ const updateEstudiante = (req, res) => __awaiter(void 0, void 0, void 0, functio
     }
 });
 exports.updateEstudiante = updateEstudiante;
+const MatricularEstudiante = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { estudiante, padre, madre } = req.body;
+    /*
+      // Validar que los datos necesarios estén presentes
+      if (!estudiante || !padre || !madre) {
+        return res.status(400).json({ message: 'Datos incompletos para la matrícula' });
+      }*/
+    // Realizar la consulta SQL con `await`
+    const [result] = yield sequelize_1.sequelize.query(`select count(*) as nCantExiste from TESTUDIANTE where tNroDocumento = :tNroDocumento`, // Usar el parámetro en la consulta
+    {
+        replacements: { tNroDocumento: estudiante.tNroDocumento }, // Pasar el valor del parámetro como `replacements`
+        type: sequelize_1.QueryTypes.SELECT
+    });
+    const existente = result.nCantExiste;
+    // console.log("si existre " + existente);
+    if (existente > 0) {
+        res.json(result);
+    }
+    else {
+        const transaction = yield sequelize_1.sequelize.transaction();
+        try {
+            const [nuevocodigo] = yield sequelize_1.sequelize.query(`SELECT   CAST((MAX(tcodestudiante)+1) as VARCHAR) as d from TESTUDIANTE`, {
+                type: sequelize_1.QueryTypes.SELECT,
+                transaction,
+            });
+            // Ahora, 'nuevocodigo.d' contendrá el valor como un string
+            const codigoEstudiante = nuevocodigo.d;
+            //  console.log("cod estudiante " + codigoEstudiante);
+            // Insertar estudiante
+            const [nuevoEstudiante] = yield sequelize_1.sequelize.query(`INSERT INTO TESTUDIANTE (tCodEstudiante, tCodGrado, tCodTipoDocumento, 
+        tAPaterno, tAMaterno, tNombres, tSexo, fNacimiento, tEstadoMatricula,
+        tNroDocumento, fRegistro, lActivo, tCodSeguro, tCodDistrito, tDireccion,
+        tTelefono, tEmail, lDiscapacidad, tDiscapacidadObs, lExonaradoR, lCierre,
+        tEstadoRegistro, tNivel,  tVive, tApoderado, lHermanos, nCantHermanos
+      ) VALUES (
+        :tCodEstudiante, :tCodGrado, :tCodTipoDocumento, :tAPaterno, :tAMaterno, :tNombres, :tSexo , :fNacimiento,  :tEstadoMatricula,
+        :tNroDocumento, getdate(), 1 , :tCodSeguro, :tCodDistrito, :tDireccion,
+        :tTelefono, :tEmail, :lDiscapacidad, :tDiscapacidadObs, :lExonaradoR, 1,
+        :tEstadoRegistro, :tNivel,  :tVive, :tApoderado, :lHermanos, :nCantHermanos
+      )`, {
+                replacements: {
+                    tCodEstudiante: codigoEstudiante,
+                    tCodGrado: estudiante.tCodGrado,
+                    tCodTipoDocumento: estudiante.tCodTipoDocumento,
+                    tAPaterno: estudiante.tAPaterno,
+                    tAMaterno: estudiante.tAMaterno,
+                    tNombres: estudiante.tNombres,
+                    tSexo: estudiante.tSexo,
+                    fNacimiento: estudiante.fNacimiento,
+                    nEdad: estudiante.nEdad,
+                    tEstadoMatricula: '01',
+                    tNroDocumento: estudiante.tNroDocumento,
+                    lActivo: estudiante.lActivo,
+                    tCodSeguro: estudiante.tCodSeguro,
+                    tCodDistrito: estudiante.tCodDistrito,
+                    tDireccion: estudiante.tDireccion,
+                    tTelefono: estudiante.tTelefono,
+                    tEmail: estudiante.tEmail,
+                    lDiscapacidad: estudiante.lDiscapacidad,
+                    tDiscapacidadObs: estudiante.tDiscapacidadObs,
+                    lExonaradoR: estudiante.lExonaradoR,
+                    tEstadoRegistro: '02',
+                    tNivel: estudiante.tNivel,
+                    tVive: estudiante.tVive,
+                    tApoderado: estudiante.tApoderado,
+                    lHermanos: estudiante.lHermanos,
+                    nCantHermanos: estudiante.nCantHermanos || 0, // Si está vacío, usar 0
+                },
+                type: sequelize_1.QueryTypes.INSERT,
+                transaction,
+            });
+            // Función para manejar apoderados
+            const upsertApoderado = (apoderado) => __awaiter(void 0, void 0, void 0, function* () {
+                const [existe] = yield sequelize_1.sequelize.query(`SELECT tCodApoderado as d FROM TAPODERADO WHERE tNroDocumento = :tNroDocumento`, {
+                    replacements: { tNroDocumento: apoderado.tNroDocumento },
+                    type: sequelize_1.QueryTypes.SELECT,
+                    transaction,
+                });
+                if (existe) {
+                    // Actualizar apoderado existente
+                    yield sequelize_1.sequelize.query(`UPDATE TAPODERADO
+             SET 
+               tApNombres = :tApNombres,
+               tCodParentesco = :tCodParentesco,
+               tCodTipoDocumento = :tCodTipoDocumento,
+               tEmail = :tEmail,
+               tTelefono = :tTelefono,
+               tDireccion = :tDireccion,
+               fRegistro = GETDATE(),
+               lActivo = :lActivo
+             WHERE tCodApoderado = :tCodApoderado`, {
+                        replacements: {
+                            tApNombres: apoderado.tApNombres,
+                            tCodParentesco: apoderado.tCodParentesco,
+                            tCodTipoDocumento: apoderado.tCodTipoDocumento,
+                            tEmail: apoderado.tEmail,
+                            tTelefono: apoderado.tTelefono,
+                            tDireccion: apoderado.tDireccion,
+                            lActivo: apoderado.lActivo || true,
+                            tCodApoderado: apoderado.tCodApoderado,
+                        },
+                        type: sequelize_1.QueryTypes.UPDATE,
+                        transaction,
+                    });
+                }
+                else {
+                    const [nuevocodigoA] = yield sequelize_1.sequelize.query(` SELECT CAST((max(tCodApoderado)+1) as varchar) as codigo from TAPODERADO`, {
+                        type: sequelize_1.QueryTypes.SELECT,
+                        transaction,
+                    });
+                    // Ahora, 'nuevocodigo.d' contendrá el valor como un string
+                    const codApoNuevo = nuevocodigoA.codigo;
+                    //   console.log("codigo apoderado" + codApoNuevo);
+                    //      const codigoEstudiante: string = nuevocodigo.d;
+                    // Insertar nuevo apoderado
+                    yield sequelize_1.sequelize.query(`INSERT INTO TAPODERADO (tCodApoderado,
+               tApNombres, tCodParentesco, tCodTipoDocumento, tNroDocumento,
+               tEmail, tTelefono, tDireccion, fRegistro, lActivo
+             ) VALUES (
+              :tCodApoderado, :tApNombres,  :tCodParentesco, :tCodTipoDocumento, :tNroDocumento,
+                :tEmail, :tTelefono, :tDireccion, GETDATE(), :lActivo
+             )`, {
+                        replacements: {
+                            tCodApoderado: codApoNuevo,
+                            tApNombres: apoderado.tApNombres,
+                            // tSexo: apoderado.tSexo,
+                            tCodParentesco: apoderado.tCodParentesco,
+                            tCodTipoDocumento: apoderado.tCodTipoDocumento,
+                            tNroDocumento: apoderado.tNroDocumento,
+                            lValidadoReniec: apoderado.lValidadoReniec || false,
+                            tEmail: apoderado.tEmail,
+                            tTelefono: apoderado.tTelefono,
+                            tDireccion: apoderado.tDireccion,
+                            lActivo: apoderado.lActivo || true,
+                        },
+                        type: sequelize_1.QueryTypes.INSERT,
+                        transaction,
+                    });
+                    yield sequelize_1.sequelize.query(` INSERT TESTUDIANTEAPODERADO (tCodEstudiante, tCodApoderado)
+     VALUES   (:tCodEstudiante , :tCodApoderado)`, {
+                        replacements: {
+                            tCodEstudiante: codigoEstudiante,
+                            tCodApoderado: codApoNuevo,
+                        },
+                        type: sequelize_1.QueryTypes.INSERT,
+                        transaction,
+                    });
+                }
+            });
+            // Manejar padre y madre
+            yield upsertApoderado(Object.assign({}, padre));
+            yield upsertApoderado(Object.assign({}, madre));
+            yield transaction.commit();
+            res.status(201).json({
+                message: 'Estudiante matriculado correctamente',
+            });
+        }
+        catch (error) {
+            yield transaction.rollback();
+            //  console.error('Error al matricular estudiante:', error);
+            res.status(500).json({ message: 'Error interno del servidor', error });
+        }
+    }
+});
+exports.MatricularEstudiante = MatricularEstudiante;

@@ -138,7 +138,7 @@ const getEstudiante = (req, res) => __awaiter(void 0, void 0, void 0, function* 
     const { tCodEstudiante } = req.params; // Obtener el parámetro `tCodEstudiante` de la URL
     // Realizar la consulta SQL con `await`
     const [result] = yield sequelize_1.sequelize.query(`SELECT tCodEstudiante,
-              (tAPaterno + ' ' + tAMaterno + ', ' + tNombres) AS tApellidosNombres,
+              tAPaterno , tAMaterno , tNombres,
               tCodTipoDocumento, tNroDocumento, fNacimiento,
               tSexo, tCodDistrito, tDireccion, tTelefono, tEmail,
               tCodGrado, lActivo, lDiscapacidad, tDiscapacidadObs,
@@ -171,15 +171,17 @@ const ValidaNroDocumentoEstudiante = (req, res) => __awaiter(void 0, void 0, voi
 exports.ValidaNroDocumentoEstudiante = ValidaNroDocumentoEstudiante;
 const updateEstudiante = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { tCodEstudiante } = req.params; // Suponiendo que el ID del producto se pasa como parámetro en la URL.
-    const { tTelefono, tDireccion, tEmail, tCodDistrito, lExonaradoR, lDiscapacidad, tDiscapacidadObs, lRatificacion, tCodGrado, tNivel, tEstadoRegistro, tCodSeguro, tVive, lHermanos, tApoderado, tAMaternoRepre, tAPaternoRepre, tCodParentescoRepre, tDireccionRepre, tEmailRepre, tNombresRepre, tTipoDocumentoRepre, tNroDocumentoRepre, tTelefonoRepre } = req.body; // Suponiendo que los nuevos valores del producto se pasan en el cuerpo de la solicitud.
+    const { tTelefono, tDireccion, tEmail, tCodDistrito, tCodTipoDocumento, lExonaradoR, lDiscapacidad, fNacimiento, tAMaterno, tAPaterno, tNombres, tDiscapacidadObs, lRatificacion, tCodGrado, tNivel, tEstadoRegistro, tCodSeguro, tVive, lHermanos, tApoderado, tAMaternoRepre, tAPaternoRepre, tCodParentescoRepre, tDireccionRepre, tEmailRepre, tNombresRepre, tTipoDocumentoRepre, tNroDocumentoRepre, tTelefonoRepre } = req.body; // Suponiendo que los nuevos valores del producto se pasan en el cuerpo de la solicitud.
     // Inicia una transacción
     const t = yield sequelize_1.sequelize.transaction();
     try {
+        console.log("llego tipo docu " + tCodTipoDocumento);
         // Ejecutamos la consulta UPDATE dentro de la transacción
         const result = yield sequelize_1.sequelize.query(`UPDATE TESTUDIANTE
       SET tTelefono = :tTelefono,
           tDireccion = :tDireccion,
           tEmail = :tEmail,
+          fNacimiento = :fNacimiento,
           tCodDistrito = :tCodDistrito,
           lExonaradoR = :lExonaradoR,
           lDiscapacidad  = :lDiscapacidad,
@@ -201,15 +203,19 @@ const updateEstudiante = (req, res) => __awaiter(void 0, void 0, void 0, functio
           tDireccionRepre = :tDireccionRepre,
           tTelefonoRepre = :tTelefonoRepre,
           tEmailRepre = :tEmailRepre,
-          tCodParentescoRepre = :tCodParentescoRepre
+          tAPaterno = :tAPaterno,
+          tAMaterno = :tAMaterno,
+          tNombres = :tNombres,
+          tCodParentescoRepre = :tCodParentescoRepre,
+          tCodTipoDocumento = :tCodTipoDocumento
       WHERE tCodEstudiante = :tCodEstudiante`, {
             replacements: {
                 tCodEstudiante, tTelefono, tDireccion,
                 tEmail, tCodDistrito, lExonaradoR, lDiscapacidad, tDiscapacidadObs, lRatificacion,
                 tCodGrado, tNivel, tEstadoRegistro, tApoderado, tVive, lHermanos, tCodSeguro,
-                tNroDocumentoRepre, tAPaternoRepre, tAMaternoRepre,
-                tNombresRepre, tTipoDocumentoRepre, tDireccionRepre,
-                tTelefonoRepre, tEmailRepre, tCodParentescoRepre
+                tNroDocumentoRepre, tAPaternoRepre, tAMaternoRepre, tCodTipoDocumento,
+                tNombresRepre, tTipoDocumentoRepre, tDireccionRepre, tNombres, tAMaterno, tAPaterno,
+                tTelefonoRepre, tEmailRepre, tCodParentescoRepre, fNacimiento
             },
             type: sequelize_1.QueryTypes.UPDATE,
             transaction: t, // Aquí indicamos que esta consulta debe usar la transacción `t`
@@ -313,7 +319,9 @@ const MatricularEstudiante = (req, res) => __awaiter(void 0, void 0, void 0, fun
                     type: sequelize_1.QueryTypes.SELECT,
                     transaction,
                 });
+                console.log(existe);
                 if (existe) {
+                    console.log(existe.d);
                     // Actualizar apoderado existente
                     yield sequelize_1.sequelize.query(`UPDATE TAPODERADO
              SET 
@@ -334,11 +342,21 @@ const MatricularEstudiante = (req, res) => __awaiter(void 0, void 0, void 0, fun
                             tTelefono: apoderado.tTelefono,
                             tDireccion: apoderado.tDireccion,
                             lActivo: apoderado.lActivo || true,
-                            tCodApoderado: apoderado.tCodApoderado,
+                            tCodApoderado: existe.d,
                         },
                         type: sequelize_1.QueryTypes.UPDATE,
                         transaction,
                     });
+                    yield sequelize_1.sequelize.query(` INSERT TESTUDIANTEAPODERADO (tCodEstudiante, tCodApoderado)
+     VALUES   (:tCodEstudiante , :tCodApoderado)`, {
+                        replacements: {
+                            tCodEstudiante: codigoEstudiante,
+                            tCodApoderado: existe.d,
+                        },
+                        type: sequelize_1.QueryTypes.INSERT,
+                        transaction,
+                    });
+                    //  console.log("llego");
                 }
                 else {
                     const [nuevocodigoA] = yield sequelize_1.sequelize.query(` SELECT CAST((max(tCodApoderado)+1) as varchar) as codigo from TAPODERADO`, {

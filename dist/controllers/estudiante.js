@@ -144,7 +144,7 @@ const getEstudiante = (req, res) => __awaiter(void 0, void 0, void 0, function* 
               tCodGrado, lActivo, lDiscapacidad, tDiscapacidadObs,
               lExonaradoR, tNivel, s.tDetallado as tDetSexo, lRatificacion, tEstadoRegistro, tCodSeguro, tVive, tApoderado, lHermanos, 
                     tNroDocumentoRepre      ,tAPaternoRepre      ,tAMaternoRepre      ,tNombresRepre      ,tTipoDocumentoRepre      ,tParentescoRepre
-      ,tDireccionRepre      ,tTelefonoRepre      ,tEmailRepre      ,tCodParentescoRepre
+      ,tDireccionRepre      ,tTelefonoRepre      ,tEmailRepre      ,tCodParentescoRepre, nCantHermanos
 
        FROM TESTUDIANTE e
        left join vSexo s ON e.tsexo = s.tCodigo
@@ -171,16 +171,17 @@ const ValidaNroDocumentoEstudiante = (req, res) => __awaiter(void 0, void 0, voi
 exports.ValidaNroDocumentoEstudiante = ValidaNroDocumentoEstudiante;
 const updateEstudiante = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { tCodEstudiante } = req.params; // Suponiendo que el ID del producto se pasa como parámetro en la URL.
-    const { tTelefono, tDireccion, tEmail, tCodDistrito, tCodTipoDocumento, lExonaradoR, lDiscapacidad, fNacimiento, tAMaterno, tAPaterno, tNombres, tDiscapacidadObs, lRatificacion, tCodGrado, tNivel, tEstadoRegistro, tCodSeguro, tVive, lHermanos, tApoderado, tAMaternoRepre, tAPaternoRepre, tCodParentescoRepre, tDireccionRepre, tEmailRepre, tNombresRepre, tTipoDocumentoRepre, tNroDocumentoRepre, tTelefonoRepre } = req.body; // Suponiendo que los nuevos valores del producto se pasan en el cuerpo de la solicitud.
+    const { tTelefono, tDireccion, tEmail, tCodDistrito, tCodTipoDocumento, lExonaradoR, lDiscapacidad, fNacimiento, tAMaterno, tAPaterno, tNombres, nCantHermanos, tDiscapacidadObs, lRatificacion, tCodGrado, tNivel, tEstadoRegistro, tCodSeguro, tVive, lHermanos, tApoderado, tAMaternoRepre, tAPaternoRepre, tCodParentescoRepre, tDireccionRepre, tEmailRepre, tNombresRepre, tTipoDocumentoRepre, tNroDocumentoRepre, tTelefonoRepre } = req.body; // Suponiendo que los nuevos valores del producto se pasan en el cuerpo de la solicitud.
     // Inicia una transacción
     const t = yield sequelize_1.sequelize.transaction();
     try {
-        console.log("llego tipo docu " + tCodTipoDocumento);
+        //  console.log("llego tipo docu " + tCodTipoDocumento);
         // Ejecutamos la consulta UPDATE dentro de la transacción
         const result = yield sequelize_1.sequelize.query(`UPDATE TESTUDIANTE
       SET tTelefono = :tTelefono,
           tDireccion = :tDireccion,
           tEmail = :tEmail,
+          nCantHermanos = :nCantHermanos,
           fNacimiento = :fNacimiento,
           tCodDistrito = :tCodDistrito,
           lExonaradoR = :lExonaradoR,
@@ -215,7 +216,7 @@ const updateEstudiante = (req, res) => __awaiter(void 0, void 0, void 0, functio
                 tCodGrado, tNivel, tEstadoRegistro, tApoderado, tVive, lHermanos, tCodSeguro,
                 tNroDocumentoRepre, tAPaternoRepre, tAMaternoRepre, tCodTipoDocumento,
                 tNombresRepre, tTipoDocumentoRepre, tDireccionRepre, tNombres, tAMaterno, tAPaterno,
-                tTelefonoRepre, tEmailRepre, tCodParentescoRepre, fNacimiento
+                tTelefonoRepre, tEmailRepre, tCodParentescoRepre, fNacimiento, nCantHermanos
             },
             type: sequelize_1.QueryTypes.UPDATE,
             transaction: t, // Aquí indicamos que esta consulta debe usar la transacción `t`
@@ -319,9 +320,9 @@ const MatricularEstudiante = (req, res) => __awaiter(void 0, void 0, void 0, fun
                     type: sequelize_1.QueryTypes.SELECT,
                     transaction,
                 });
-                console.log(existe);
+                //   console.log(existe);
                 if (existe) {
-                    console.log(existe.d);
+                    //    console.log(existe.d);
                     // Actualizar apoderado existente
                     yield sequelize_1.sequelize.query(`UPDATE TAPODERADO
              SET 

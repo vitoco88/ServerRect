@@ -163,7 +163,7 @@ export const getEstudiante = async (req: Request, res: Response) => {
               tCodGrado, lActivo, lDiscapacidad, tDiscapacidadObs,
               lExonaradoR, tNivel, s.tDetallado as tDetSexo, lRatificacion, tEstadoRegistro, tCodSeguro, tVive, tApoderado, lHermanos, 
                     tNroDocumentoRepre      ,tAPaternoRepre      ,tAMaternoRepre      ,tNombresRepre      ,tTipoDocumentoRepre      ,tParentescoRepre
-      ,tDireccionRepre      ,tTelefonoRepre      ,tEmailRepre      ,tCodParentescoRepre
+      ,tDireccionRepre      ,tTelefonoRepre      ,tEmailRepre      ,tCodParentescoRepre, nCantHermanos
 
        FROM TESTUDIANTE e
        left join vSexo s ON e.tsexo = s.tCodigo
@@ -211,7 +211,7 @@ export const ValidaNroDocumentoEstudiante = async (req: Request, res: Response) 
 
 export const updateEstudiante = async (req: Request, res: Response) => {
   const { tCodEstudiante } = req.params;  // Suponiendo que el ID del producto se pasa como parámetro en la URL.
-  const { tTelefono, tDireccion, tEmail, tCodDistrito, tCodTipoDocumento, lExonaradoR, lDiscapacidad, fNacimiento, tAMaterno, tAPaterno, tNombres,
+  const { tTelefono, tDireccion, tEmail, tCodDistrito, tCodTipoDocumento, lExonaradoR, lDiscapacidad, fNacimiento, tAMaterno, tAPaterno, tNombres, nCantHermanos,
     tDiscapacidadObs, lRatificacion, tCodGrado, tNivel, tEstadoRegistro, tCodSeguro, tVive, lHermanos, tApoderado, tAMaternoRepre, tAPaternoRepre, tCodParentescoRepre, tDireccionRepre, tEmailRepre, tNombresRepre, tTipoDocumentoRepre, tNroDocumentoRepre, tTelefonoRepre
   } = req.body;  // Suponiendo que los nuevos valores del producto se pasan en el cuerpo de la solicitud.
 
@@ -220,7 +220,7 @@ export const updateEstudiante = async (req: Request, res: Response) => {
 
   try {
 
-    console.log("llego tipo docu " + tCodTipoDocumento);
+  //  console.log("llego tipo docu " + tCodTipoDocumento);
 
 
     // Ejecutamos la consulta UPDATE dentro de la transacción
@@ -229,6 +229,7 @@ export const updateEstudiante = async (req: Request, res: Response) => {
       SET tTelefono = :tTelefono,
           tDireccion = :tDireccion,
           tEmail = :tEmail,
+          nCantHermanos = :nCantHermanos,
           fNacimiento = :fNacimiento,
           tCodDistrito = :tCodDistrito,
           lExonaradoR = :lExonaradoR,
@@ -264,7 +265,7 @@ export const updateEstudiante = async (req: Request, res: Response) => {
           tCodGrado, tNivel, tEstadoRegistro, tApoderado, tVive, lHermanos, tCodSeguro,
           tNroDocumentoRepre, tAPaternoRepre, tAMaternoRepre,  tCodTipoDocumento,
            tNombresRepre, tTipoDocumentoRepre, tDireccionRepre, tNombres, tAMaterno, tAPaterno,
-            tTelefonoRepre, tEmailRepre, tCodParentescoRepre, fNacimiento
+            tTelefonoRepre, tEmailRepre, tCodParentescoRepre, fNacimiento, nCantHermanos
         },
         type: QueryTypes.UPDATE,
         transaction: t,  // Aquí indicamos que esta consulta debe usar la transacción `t`
@@ -392,12 +393,12 @@ export const MatricularEstudiante = async (req: Request, res: Response) => {
             transaction,
           }
         );       
-        console.log(existe);
+     //   console.log(existe);
 
         if (existe) {
 
 
-          console.log(existe.d);
+      //    console.log(existe.d);
           // Actualizar apoderado existente
           await sequelize.query(
             `UPDATE TAPODERADO

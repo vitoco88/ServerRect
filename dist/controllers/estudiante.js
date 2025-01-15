@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.MatricularEstudiante = exports.updateEstudiante = exports.ValidaNroDocumentoEstudiante = exports.getEstudiante = exports.getEstudianteUnico = exports.getEstudiantes = exports.getGrado = exports.getNiveles = exports.getTipoDocumento = exports.getDistritos = void 0;
+exports.MatricularEstudiante = exports.updateEstudiante = exports.ValidaNroDocumentoEstudiante = exports.ValidaNroDocumentoEstudiante2 = exports.getEstudiante = exports.getEstudianteUnico = exports.getEstudiantes = exports.getGrado = exports.getNiveles = exports.getTipoDocumento = exports.getDistritos = void 0;
 const sequelize_1 = require("../models/sequelize");
 const getDistritos = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -157,6 +157,19 @@ const getEstudiante = (req, res) => __awaiter(void 0, void 0, void 0, function* 
     res.json(result); // Enviar los resultados como respuesta
 });
 exports.getEstudiante = getEstudiante;
+const ValidaNroDocumentoEstudiante2 = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { tNroDocumento } = req.params; // Obtener el parámetro `tCodEstudiante` de la URL
+    // Realizar la consulta SQL con `await`
+    const [result] = yield sequelize_1.sequelize.query(`select count(*) as nCantExiste from TESTUDIANTE where tNroDocumento = :tNroDocumento`, // Usar el parámetro en la consulta
+    {
+        replacements: { tNroDocumento }, // Pasar el valor del parámetro como `replacements`
+        type: sequelize_1.QueryTypes.SELECT
+    });
+    const existente = result.nCantExiste;
+    //  console.log("tanto es " + existente);
+    res.json(result); // Enviar los resultados como respuesta    
+});
+exports.ValidaNroDocumentoEstudiante2 = ValidaNroDocumentoEstudiante2;
 const ValidaNroDocumentoEstudiante = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { tNroDocumento } = req.params; // Obtener el parámetro `tCodEstudiante` de la URL
     // Realizar la consulta SQL con `await`
@@ -165,6 +178,7 @@ const ValidaNroDocumentoEstudiante = (req, res) => __awaiter(void 0, void 0, voi
         replacements: { tNroDocumento }, // Pasar el valor del parámetro como `replacements`
         type: sequelize_1.QueryTypes.SELECT
     });
+    // const existente: number = result.nCantExiste;
     // console.log(result);
     res.json(result); // Enviar los resultados como respuesta    
 });
@@ -255,6 +269,7 @@ const MatricularEstudiante = (req, res) => __awaiter(void 0, void 0, void 0, fun
         replacements: { tNroDocumento: estudiante.tNroDocumento }, // Pasar el valor del parámetro como `replacements`
         type: sequelize_1.QueryTypes.SELECT
     });
+    // const existente: number = result.nCantExiste;    14/01/2025
     const existente = result.nCantExiste;
     // console.log("si existre " + existente);
     if (existente > 0) {
@@ -268,6 +283,7 @@ const MatricularEstudiante = (req, res) => __awaiter(void 0, void 0, void 0, fun
                 transaction,
             });
             // Ahora, 'nuevocodigo.d' contendrá el valor como un string
+            //   const codigoEstudiante: string = nuevocodigo.d;   14/01/2024
             const codigoEstudiante = nuevocodigo.d;
             //  console.log("cod estudiante " + codigoEstudiante);
             // Insertar estudiante
@@ -324,6 +340,7 @@ const MatricularEstudiante = (req, res) => __awaiter(void 0, void 0, void 0, fun
                 if (existe) {
                     //    console.log(existe.d);
                     // Actualizar apoderado existente
+                    //   console.log("APODERADO EXISTENTE " + (existe as { d: string }).d);
                     yield sequelize_1.sequelize.query(`UPDATE TAPODERADO
              SET 
                tApNombres = :tApNombres,
@@ -343,6 +360,7 @@ const MatricularEstudiante = (req, res) => __awaiter(void 0, void 0, void 0, fun
                             tTelefono: apoderado.tTelefono,
                             tDireccion: apoderado.tDireccion,
                             lActivo: apoderado.lActivo || true,
+                            //   tCodApoderado: existe.d,      14/01/2024
                             tCodApoderado: existe.d,
                         },
                         type: sequelize_1.QueryTypes.UPDATE,
@@ -352,6 +370,7 @@ const MatricularEstudiante = (req, res) => __awaiter(void 0, void 0, void 0, fun
      VALUES   (:tCodEstudiante , :tCodApoderado)`, {
                         replacements: {
                             tCodEstudiante: codigoEstudiante,
+                            //  tCodApoderado: existe.d,   14/01/2024
                             tCodApoderado: existe.d,
                         },
                         type: sequelize_1.QueryTypes.INSERT,
@@ -365,7 +384,9 @@ const MatricularEstudiante = (req, res) => __awaiter(void 0, void 0, void 0, fun
                         transaction,
                     });
                     // Ahora, 'nuevocodigo.d' contendrá el valor como un string
+                    //    const codApoNuevo: string = nuevocodigoA.codigo;    14/01/2025
                     const codApoNuevo = nuevocodigoA.codigo;
+                    //    console.log("cod apo nuevo " + codApoNuevo)
                     //   console.log("codigo apoderado" + codApoNuevo);
                     //      const codigoEstudiante: string = nuevocodigo.d;
                     // Insertar nuevo apoderado

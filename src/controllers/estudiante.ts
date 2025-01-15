@@ -12,7 +12,7 @@ export const getDistritos = async (req: Request, res: Response) => {
     const results = await sequelize.query(query, { type: QueryTypes.SELECT });
     res.json(results);  // Enviar los resultados al frontend
   } catch (error) {
-  //  console.error('Error fetching data:', error);
+    //  console.error('Error fetching data:', error);
     res.status(500).json({ error: 'Error fetching data from database' });
   }
 };
@@ -25,7 +25,7 @@ export const getTipoDocumento = async (req: Request, res: Response) => {
     const results = await sequelize.query(query, { type: QueryTypes.SELECT });
     res.json(results);  // Enviar los resultados al frontend
   } catch (error) {
-   // console.error('Error fetching data:', error);
+    // console.error('Error fetching data:', error);
     res.status(500).json({ error: 'Error fetching data from database' });
   }
 };
@@ -38,9 +38,9 @@ export const getNiveles = async (req: Request, res: Response) => {
     const results = await sequelize.query(query, { type: QueryTypes.SELECT });
     res.json(results);  // Enviar los resultados al frontend
 
- //   console.log(results);
+    //   console.log(results);
   } catch (error) {
-  //  console.error('Error fetching data:', error);
+    //  console.error('Error fetching data:', error);
     res.status(500).json({ error: 'Error fetching data from database' });
   }
 };
@@ -54,7 +54,7 @@ export const getGrado = async (req: Request, res: Response) => {
     const results = await sequelize.query(query, { type: QueryTypes.SELECT });
     res.json(results);  // Enviar los resultados al frontend
   } catch (error) {
-  //  console.error('Error fetching data:', error);
+    //  console.error('Error fetching data:', error);
     res.status(500).json({ error: 'Error fetching data from database' });
   }
 };
@@ -91,14 +91,14 @@ ORDER BY m.tCodEstudiante asc`,
     //        console.log(results);
     // Verificar que results es un array
 
-  //  console.log(typeof results);
+    //  console.log(typeof results);
     if (Array.isArray(results)) {
       res.json(results);  // Devolver los resultados como un array de objetos
     } else {
       res.status(500).json({ error: 'No se encontraron resultados.' });
     }
   } catch (error) {
- //   console.error('Error al obtener los datos:', error);
+    //   console.error('Error al obtener los datos:', error);
   }
 }
 
@@ -137,14 +137,14 @@ ORDER BY e.tCodEstudiante asc`,
     //        console.log(results);
     // Verificar que results es un array
 
-  //  console.log(typeof results);
+    //  console.log(typeof results);
     if (Array.isArray(results)) {
       res.json(results);  // Devolver los resultados como un array de objetos
     } else {
       res.status(500).json({ error: 'No se encontraron resultados.' });
     }
   } catch (error) {
- //   console.error('Error al obtener los datos:', error);
+    //   console.error('Error al obtener los datos:', error);
   }
 }
 
@@ -174,11 +174,30 @@ export const getEstudiante = async (req: Request, res: Response) => {
     }
   );
 
- // console.log(result);
+  // console.log(result);
   res.json(result);  // Enviar los resultados como respuesta
 
 };
 
+
+
+
+export const ValidaNroDocumentoEstudiante2 = async (req: Request, res: Response) => {
+  const { tNroDocumento } = req.params;  // Obtener el parámetro `tCodEstudiante` de la URL
+
+  // Realizar la consulta SQL con `await`
+  const [result] = await sequelize.query(
+    `select count(*) as nCantExiste from TESTUDIANTE where tNroDocumento = :tNroDocumento`,  // Usar el parámetro en la consulta
+    {
+      replacements: { tNroDocumento },  // Pasar el valor del parámetro como `replacements`
+      type: QueryTypes.SELECT
+    }
+  );
+
+  const existente: number = (result as { nCantExiste: number }).nCantExiste;
+//  console.log("tanto es " + existente);
+  res.json(result);  // Enviar los resultados como respuesta    
+};
 
 
 
@@ -193,11 +212,10 @@ export const ValidaNroDocumentoEstudiante = async (req: Request, res: Response) 
       type: QueryTypes.SELECT
     }
   );
- // console.log(result);
+  // const existente: number = result.nCantExiste;
+  // console.log(result);
   res.json(result);  // Enviar los resultados como respuesta    
 };
-
-
 
 
 
@@ -220,7 +238,7 @@ export const updateEstudiante = async (req: Request, res: Response) => {
 
   try {
 
-  //  console.log("llego tipo docu " + tCodTipoDocumento);
+    //  console.log("llego tipo docu " + tCodTipoDocumento);
 
 
     // Ejecutamos la consulta UPDATE dentro de la transacción
@@ -263,9 +281,9 @@ export const updateEstudiante = async (req: Request, res: Response) => {
           tCodEstudiante, tTelefono, tDireccion,
           tEmail, tCodDistrito, lExonaradoR, lDiscapacidad, tDiscapacidadObs, lRatificacion,
           tCodGrado, tNivel, tEstadoRegistro, tApoderado, tVive, lHermanos, tCodSeguro,
-          tNroDocumentoRepre, tAPaternoRepre, tAMaternoRepre,  tCodTipoDocumento,
-           tNombresRepre, tTipoDocumentoRepre, tDireccionRepre, tNombres, tAMaterno, tAPaterno,
-            tTelefonoRepre, tEmailRepre, tCodParentescoRepre, fNacimiento, nCantHermanos
+          tNroDocumentoRepre, tAPaternoRepre, tAMaternoRepre, tCodTipoDocumento,
+          tNombresRepre, tTipoDocumentoRepre, tDireccionRepre, tNombres, tAMaterno, tAPaterno,
+          tTelefonoRepre, tEmailRepre, tCodParentescoRepre, fNacimiento, nCantHermanos
         },
         type: QueryTypes.UPDATE,
         transaction: t,  // Aquí indicamos que esta consulta debe usar la transacción `t`
@@ -313,9 +331,12 @@ export const MatricularEstudiante = async (req: Request, res: Response) => {
       type: QueryTypes.SELECT
     }
   );
-  const existente: number = result.nCantExiste;
+  // const existente: number = result.nCantExiste;    14/01/2025
+  const existente: number = (result as { nCantExiste: number }).nCantExiste;
 
  // console.log("si existre " + existente);
+
+
   if (existente > 0) {
     res.json(result)
   }
@@ -332,7 +353,9 @@ export const MatricularEstudiante = async (req: Request, res: Response) => {
 
 
       // Ahora, 'nuevocodigo.d' contendrá el valor como un string
-      const codigoEstudiante: string = nuevocodigo.d;
+      //   const codigoEstudiante: string = nuevocodigo.d;   14/01/2024
+
+      const codigoEstudiante: string = (nuevocodigo as { d: string }).d;
     //  console.log("cod estudiante " + codigoEstudiante);
 
 
@@ -360,7 +383,7 @@ export const MatricularEstudiante = async (req: Request, res: Response) => {
             tSexo: estudiante.tSexo,
             fNacimiento: estudiante.fNacimiento,
             nEdad: estudiante.nEdad,
-            tEstadoMatricula: '01',           
+            tEstadoMatricula: '01',
             tNroDocumento: estudiante.tNroDocumento,
             lActivo: estudiante.lActivo,
             tCodSeguro: estudiante.tCodSeguro,
@@ -392,14 +415,19 @@ export const MatricularEstudiante = async (req: Request, res: Response) => {
             type: QueryTypes.SELECT,
             transaction,
           }
-        );       
-     //   console.log(existe);
+        );
+        //   console.log(existe);
 
         if (existe) {
 
 
-      //    console.log(existe.d);
+          //    console.log(existe.d);
           // Actualizar apoderado existente
+
+       //   console.log("APODERADO EXISTENTE " + (existe as { d: string }).d);
+
+
+
           await sequelize.query(
             `UPDATE TAPODERADO
              SET 
@@ -421,7 +449,8 @@ export const MatricularEstudiante = async (req: Request, res: Response) => {
                 tTelefono: apoderado.tTelefono,
                 tDireccion: apoderado.tDireccion,
                 lActivo: apoderado.lActivo || true,
-                tCodApoderado: existe.d,
+                //   tCodApoderado: existe.d,      14/01/2024
+                tCodApoderado: (existe as { d: string }).d,
               },
               type: QueryTypes.UPDATE,
               transaction,
@@ -435,27 +464,14 @@ export const MatricularEstudiante = async (req: Request, res: Response) => {
             {
               replacements: {
                 tCodEstudiante: codigoEstudiante,
-                tCodApoderado: existe.d,
+                //  tCodApoderado: existe.d,   14/01/2024
+                tCodApoderado: (existe as { d: string }).d,
               },
               type: QueryTypes.INSERT,
               transaction,
             }
           );
-
-
-        //  console.log("llego");
-
-
-         
-
-
-
-
-
-
-
-
-
+          //  console.log("llego");
         }
         else {
 
@@ -468,8 +484,16 @@ export const MatricularEstudiante = async (req: Request, res: Response) => {
           );
 
           // Ahora, 'nuevocodigo.d' contendrá el valor como un string
-          const codApoNuevo: string = nuevocodigoA.codigo;
-       //   console.log("codigo apoderado" + codApoNuevo);
+          //    const codApoNuevo: string = nuevocodigoA.codigo;    14/01/2025
+
+          const codApoNuevo: string = (nuevocodigoA as { codigo: string }).codigo;
+
+      //    console.log("cod apo nuevo " + codApoNuevo)
+
+
+
+
+          //   console.log("codigo apoderado" + codApoNuevo);
 
           //      const codigoEstudiante: string = nuevocodigo.d;
 
@@ -536,7 +560,7 @@ export const MatricularEstudiante = async (req: Request, res: Response) => {
     }
     catch (error) {
       await transaction.rollback();
-    //  console.error('Error al matricular estudiante:', error);
+      //  console.error('Error al matricular estudiante:', error);
       res.status(500).json({ message: 'Error interno del servidor', error });
     }
   }

@@ -182,6 +182,52 @@ export const getEstudiante = async (req: Request, res: Response) => {
 
 
 
+export const getPadre = async (req: Request, res: Response) => {
+  const { tCodEstudiante } = req.params;  // Obtener el parámetro `tCodEstudiante` de la URL
+  // Realizar la consulta SQL con `await`
+  const [result] = await sequelize.query(
+    `SELECT 
+    A.tCodApoderado,     A.tNroDocumento,     A.tCodParentesco,    A.tNroDocumento, 
+    A.tDireccion,     A.tEmail,     A.tTelefono,  A.tCodTipoDocumento, 
+    SUBSTRING(A.tApNombres, 1, CHARINDEX(' ', A.tApNombres) - 1) AS tAPaterno,    
+    SUBSTRING(        A.tApNombres,         CHARINDEX(' ', A.tApNombres) + 1,         CHARINDEX(' ', A.tApNombres + ' ', CHARINDEX(' ', A.tApNombres) + 1) - CHARINDEX(' ', A.tApNombres) - 1    ) AS tAMaterno,
+    LTRIM(SUBSTRING(        A.tApNombres,         CHARINDEX(' ', A.tApNombres + ' ', CHARINDEX(' ', A.tApNombres) + 1) + 1,         LEN(A.tApNombres)    )) AS tNombres
+FROM     TESTUDIANTEAPODERADO R LEFT JOIN     TAPODERADO A     ON A.tCodApoderado = R.tCodApoderado 
+WHERE     R.tCodEstudiante = :tCodEstudiante AND A.tCodParentesco = '01'`,  
+    {
+      replacements: { tCodEstudiante },  // Pasar el valor del parámetro como `replacements`
+      type: QueryTypes.SELECT
+    }
+  );
+  // console.log(result);
+  res.json(result);  // Enviar los resultados como respuesta
+};
+
+
+export const getMadre = async (req: Request, res: Response) => {
+  const { tCodEstudiante } = req.params;  // Obtener el parámetro `tCodEstudiante` de la URL
+  // Realizar la consulta SQL con `await`
+  const [result] = await sequelize.query(
+    `SELECT 
+    A.tCodApoderado,     A.tNroDocumento,     A.tCodParentesco,    A.tNroDocumento, 
+    A.tDireccion,     A.tEmail,     A.tTelefono, A.tCodTipoDocumento,    
+    SUBSTRING(A.tApNombres, 1, CHARINDEX(' ', A.tApNombres) - 1) AS tAPaterno,    
+    SUBSTRING(        A.tApNombres,         CHARINDEX(' ', A.tApNombres) + 1,         CHARINDEX(' ', A.tApNombres + ' ', CHARINDEX(' ', A.tApNombres) + 1) - CHARINDEX(' ', A.tApNombres) - 1    ) AS tAMaterno,
+    LTRIM(SUBSTRING(        A.tApNombres,         CHARINDEX(' ', A.tApNombres + ' ', CHARINDEX(' ', A.tApNombres) + 1) + 1,         LEN(A.tApNombres)    )) AS tNombres
+FROM     TESTUDIANTEAPODERADO R LEFT JOIN     TAPODERADO A     ON A.tCodApoderado = R.tCodApoderado 
+WHERE     R.tCodEstudiante = :tCodEstudiante AND A.tCodParentesco = '02'`,  
+    {
+      replacements: { tCodEstudiante },  // Pasar el valor del parámetro como `replacements`
+      type: QueryTypes.SELECT
+    }
+  );
+  // console.log(result);
+  res.json(result);  // Enviar los resultados como respuesta
+};
+
+
+
+
 export const ValidaNroDocumentoEstudiante2 = async (req: Request, res: Response) => {
   const { tNroDocumento } = req.params;  // Obtener el parámetro `tCodEstudiante` de la URL
 
@@ -195,7 +241,7 @@ export const ValidaNroDocumentoEstudiante2 = async (req: Request, res: Response)
   );
 
   const existente: number = (result as { nCantExiste: number }).nCantExiste;
-//  console.log("tanto es " + existente);
+  //  console.log("tanto es " + existente);
   res.json(result);  // Enviar los resultados como respuesta    
 };
 
@@ -334,7 +380,7 @@ export const MatricularEstudiante = async (req: Request, res: Response) => {
   // const existente: number = result.nCantExiste;    14/01/2025
   const existente: number = (result as { nCantExiste: number }).nCantExiste;
 
- // console.log("si existre " + existente);
+  // console.log("si existre " + existente);
 
 
   if (existente > 0) {
@@ -356,7 +402,7 @@ export const MatricularEstudiante = async (req: Request, res: Response) => {
       //   const codigoEstudiante: string = nuevocodigo.d;   14/01/2024
 
       const codigoEstudiante: string = (nuevocodigo as { d: string }).d;
-    //  console.log("cod estudiante " + codigoEstudiante);
+      //  console.log("cod estudiante " + codigoEstudiante);
 
 
       // Insertar estudiante
@@ -424,7 +470,7 @@ export const MatricularEstudiante = async (req: Request, res: Response) => {
           //    console.log(existe.d);
           // Actualizar apoderado existente
 
-       //   console.log("APODERADO EXISTENTE " + (existe as { d: string }).d);
+          //   console.log("APODERADO EXISTENTE " + (existe as { d: string }).d);
 
 
 
@@ -488,7 +534,7 @@ export const MatricularEstudiante = async (req: Request, res: Response) => {
 
           const codApoNuevo: string = (nuevocodigoA as { codigo: string }).codigo;
 
-      //    console.log("cod apo nuevo " + codApoNuevo)
+          //    console.log("cod apo nuevo " + codApoNuevo)
 
 
 

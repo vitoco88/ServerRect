@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.MatricularEstudiante = exports.updateEstudiante = exports.ValidaNroDocumentoEstudiante = exports.ValidaNroDocumentoEstudiante2 = exports.getEstudiante = exports.getEstudianteUnico = exports.getEstudiantes = exports.getGrado = exports.getNiveles = exports.getTipoDocumento = exports.getDistritos = void 0;
+exports.MatricularEstudiante = exports.updateEstudiante = exports.ValidaNroDocumentoEstudiante = exports.ValidaNroDocumentoEstudiante2 = exports.getMadre = exports.getPadre = exports.getEstudiante = exports.getEstudianteUnico = exports.getEstudiantes = exports.getGrado = exports.getNiveles = exports.getTipoDocumento = exports.getDistritos = void 0;
 const sequelize_1 = require("../models/sequelize");
 const getDistritos = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -157,6 +157,42 @@ const getEstudiante = (req, res) => __awaiter(void 0, void 0, void 0, function* 
     res.json(result); // Enviar los resultados como respuesta
 });
 exports.getEstudiante = getEstudiante;
+const getPadre = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { tCodEstudiante } = req.params; // Obtener el parámetro `tCodEstudiante` de la URL
+    // Realizar la consulta SQL con `await`
+    const [result] = yield sequelize_1.sequelize.query(`SELECT 
+    A.tCodApoderado,     A.tNroDocumento,     A.tCodParentesco,    A.tNroDocumento, 
+    A.tDireccion,     A.tEmail,     A.tTelefono,  A.tCodTipoDocumento, 
+    SUBSTRING(A.tApNombres, 1, CHARINDEX(' ', A.tApNombres) - 1) AS tAPaterno,    
+    SUBSTRING(        A.tApNombres,         CHARINDEX(' ', A.tApNombres) + 1,         CHARINDEX(' ', A.tApNombres + ' ', CHARINDEX(' ', A.tApNombres) + 1) - CHARINDEX(' ', A.tApNombres) - 1    ) AS tAMaterno,
+    LTRIM(SUBSTRING(        A.tApNombres,         CHARINDEX(' ', A.tApNombres + ' ', CHARINDEX(' ', A.tApNombres) + 1) + 1,         LEN(A.tApNombres)    )) AS tNombres
+FROM     TESTUDIANTEAPODERADO R LEFT JOIN     TAPODERADO A     ON A.tCodApoderado = R.tCodApoderado 
+WHERE     R.tCodEstudiante = :tCodEstudiante AND A.tCodParentesco = '01'`, {
+        replacements: { tCodEstudiante }, // Pasar el valor del parámetro como `replacements`
+        type: sequelize_1.QueryTypes.SELECT
+    });
+    // console.log(result);
+    res.json(result); // Enviar los resultados como respuesta
+});
+exports.getPadre = getPadre;
+const getMadre = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { tCodEstudiante } = req.params; // Obtener el parámetro `tCodEstudiante` de la URL
+    // Realizar la consulta SQL con `await`
+    const [result] = yield sequelize_1.sequelize.query(`SELECT 
+    A.tCodApoderado,     A.tNroDocumento,     A.tCodParentesco,    A.tNroDocumento, 
+    A.tDireccion,     A.tEmail,     A.tTelefono, A.tCodTipoDocumento,    
+    SUBSTRING(A.tApNombres, 1, CHARINDEX(' ', A.tApNombres) - 1) AS tAPaterno,    
+    SUBSTRING(        A.tApNombres,         CHARINDEX(' ', A.tApNombres) + 1,         CHARINDEX(' ', A.tApNombres + ' ', CHARINDEX(' ', A.tApNombres) + 1) - CHARINDEX(' ', A.tApNombres) - 1    ) AS tAMaterno,
+    LTRIM(SUBSTRING(        A.tApNombres,         CHARINDEX(' ', A.tApNombres + ' ', CHARINDEX(' ', A.tApNombres) + 1) + 1,         LEN(A.tApNombres)    )) AS tNombres
+FROM     TESTUDIANTEAPODERADO R LEFT JOIN     TAPODERADO A     ON A.tCodApoderado = R.tCodApoderado 
+WHERE     R.tCodEstudiante = :tCodEstudiante AND A.tCodParentesco = '02'`, {
+        replacements: { tCodEstudiante }, // Pasar el valor del parámetro como `replacements`
+        type: sequelize_1.QueryTypes.SELECT
+    });
+    // console.log(result);
+    res.json(result); // Enviar los resultados como respuesta
+});
+exports.getMadre = getMadre;
 const ValidaNroDocumentoEstudiante2 = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { tNroDocumento } = req.params; // Obtener el parámetro `tCodEstudiante` de la URL
     // Realizar la consulta SQL con `await`

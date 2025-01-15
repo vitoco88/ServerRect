@@ -13,4 +13,6 @@ router.get('/cod/:tCodEstudiante', estudiante_1.getEstudiante);
 router.get('/id/:tNroDocumento', estudiante_1.getEstudianteUnico);
 router.post('/reg/reg/', estudiante_1.MatricularEstudiante);
 router.put('/cod/:tCodEstudiante', estudiante_1.updateEstudiante);
+router.get('/padre/:tCodEstudiante', estudiante_1.getPadre);
+router.get('/madre/:tCodEstudiante', estudiante_1.getMadre);
 exports.default = router;

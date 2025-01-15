@@ -1,7 +1,7 @@
 
 
 import {Router} from 'express'
-import { getDistritos, getEstudiante, getEstudiantes, getEstudianteUnico, getGrado, getNiveles, getTipoDocumento, MatricularEstudiante,  updateEstudiante, ValidaNroDocumentoEstudiante } from '../controllers/estudiante';
+import { getDistritos, getEstudiante, getEstudiantes, getEstudianteUnico, getGrado, getMadre, getNiveles, getPadre, getTipoDocumento, MatricularEstudiante,  updateEstudiante, ValidaNroDocumentoEstudiante } from '../controllers/estudiante';
 
 
 const router = Router();
@@ -19,6 +19,9 @@ router.get('/cod/:tCodEstudiante', getEstudiante)
 router.get('/id/:tNroDocumento', getEstudianteUnico)
 router.post('/reg/reg/', MatricularEstudiante)
 router.put('/cod/:tCodEstudiante', updateEstudiante)
+
+router.get('/padre/:tCodEstudiante', getPadre)
+router.get('/madre/:tCodEstudiante', getMadre)
 
 
 

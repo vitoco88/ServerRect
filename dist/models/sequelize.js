@@ -10,7 +10,10 @@ const sequelize = new sequelize_1.Sequelize({
     username: 'sa', // Tu nombre de usuario de la base de datos
     password: 'Maktub1988!', // Tu contraseña de la base de datos
     database: 'GUEMM', // Nombre de tu base de datos
-    logging: false, // Puedes activar el log para ver las consultas ejecutadas (true) o desactivarlo (false)
+    logging: false, // Puedes activar el log para ver las consultas ejecutadas (true) o desactivarlo (false)       
+    dialectOptions: {
+        useUTC: false, // Asegúrate de que no se use UTC si las fechas están almacenadas en hora local
+    },
 });
 exports.sequelize = sequelize;
 // Verificación de la conexión a la base de datos

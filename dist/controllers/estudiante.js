@@ -139,7 +139,7 @@ const getEstudiante = (req, res) => __awaiter(void 0, void 0, void 0, function* 
     // Realizar la consulta SQL con `await`
     const [result] = yield sequelize_1.sequelize.query(`SELECT tCodEstudiante,
               tAPaterno , tAMaterno , tNombres,
-              tCodTipoDocumento, tNroDocumento, fNacimiento,
+              tCodTipoDocumento, tNroDocumento, DATEADD(day, 1, fNacimiento) AS fNacimiento,
               tSexo, tCodDistrito, tDireccion, tTelefono, tEmail,
               tCodGrado, lActivo, lDiscapacidad, tDiscapacidadObs,
               lExonaradoR, tNivel, s.tDetallado as tDetSexo, lRatificacion, tEstadoRegistro, tCodSeguro, tVive, tApoderado, lHermanos, 
@@ -153,6 +153,7 @@ const getEstudiante = (req, res) => __awaiter(void 0, void 0, void 0, function* 
         replacements: { tCodEstudiante }, // Pasar el valor del parámetro como `replacements`
         type: sequelize_1.QueryTypes.SELECT
     });
+    // console.log(" + " + result.fNacimiento);
     // console.log(result);
     res.json(result); // Enviar los resultados como respuesta
 });
@@ -226,6 +227,7 @@ const updateEstudiante = (req, res) => __awaiter(void 0, void 0, void 0, functio
     const t = yield sequelize_1.sequelize.transaction();
     try {
         //  console.log("llego tipo docu " + tCodTipoDocumento);
+        // console.log("fecnac " + fNacimiento);
         // Ejecutamos la consulta UPDATE dentro de la transacción
         const result = yield sequelize_1.sequelize.query(`UPDATE TESTUDIANTE
       SET tTelefono = :tTelefono,

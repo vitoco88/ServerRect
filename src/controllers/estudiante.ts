@@ -4,6 +4,9 @@ import { query, Request, Response } from 'express'
 import Estudiante from '../models/Estudiante'
 import { QueryTypes, sequelize } from '../models/sequelize';
 import { Transaction } from 'sequelize';
+ 
+
+
 
 
 export const getDistritos = async (req: Request, res: Response) => {
@@ -158,7 +161,7 @@ export const getEstudiante = async (req: Request, res: Response) => {
   const [result] = await sequelize.query(
     `SELECT tCodEstudiante,
               tAPaterno , tAMaterno , tNombres,
-              tCodTipoDocumento, tNroDocumento, fNacimiento,
+              tCodTipoDocumento, tNroDocumento, DATEADD(day, 1, fNacimiento) AS fNacimiento,
               tSexo, tCodDistrito, tDireccion, tTelefono, tEmail,
               tCodGrado, lActivo, lDiscapacidad, tDiscapacidadObs,
               lExonaradoR, tNivel, s.tDetallado as tDetSexo, lRatificacion, tEstadoRegistro, tCodSeguro, tVive, tApoderado, lHermanos, 
@@ -174,7 +177,8 @@ export const getEstudiante = async (req: Request, res: Response) => {
     }
   );
 
-  // console.log(result);
+ // console.log(" + " + result.fNacimiento);
+ // console.log(result);
   res.json(result);  // Enviar los resultados como respuesta
 
 };
@@ -193,7 +197,7 @@ export const getPadre = async (req: Request, res: Response) => {
     SUBSTRING(        A.tApNombres,         CHARINDEX(' ', A.tApNombres) + 1,         CHARINDEX(' ', A.tApNombres + ' ', CHARINDEX(' ', A.tApNombres) + 1) - CHARINDEX(' ', A.tApNombres) - 1    ) AS tAMaterno,
     LTRIM(SUBSTRING(        A.tApNombres,         CHARINDEX(' ', A.tApNombres + ' ', CHARINDEX(' ', A.tApNombres) + 1) + 1,         LEN(A.tApNombres)    )) AS tNombres
 FROM     TESTUDIANTEAPODERADO R LEFT JOIN     TAPODERADO A     ON A.tCodApoderado = R.tCodApoderado 
-WHERE     R.tCodEstudiante = :tCodEstudiante AND A.tCodParentesco = '01'`,  
+WHERE     R.tCodEstudiante = :tCodEstudiante AND A.tCodParentesco = '01'`,
     {
       replacements: { tCodEstudiante },  // Pasar el valor del parámetro como `replacements`
       type: QueryTypes.SELECT
@@ -215,7 +219,7 @@ export const getMadre = async (req: Request, res: Response) => {
     SUBSTRING(        A.tApNombres,         CHARINDEX(' ', A.tApNombres) + 1,         CHARINDEX(' ', A.tApNombres + ' ', CHARINDEX(' ', A.tApNombres) + 1) - CHARINDEX(' ', A.tApNombres) - 1    ) AS tAMaterno,
     LTRIM(SUBSTRING(        A.tApNombres,         CHARINDEX(' ', A.tApNombres + ' ', CHARINDEX(' ', A.tApNombres) + 1) + 1,         LEN(A.tApNombres)    )) AS tNombres
 FROM     TESTUDIANTEAPODERADO R LEFT JOIN     TAPODERADO A     ON A.tCodApoderado = R.tCodApoderado 
-WHERE     R.tCodEstudiante = :tCodEstudiante AND A.tCodParentesco = '02'`,  
+WHERE     R.tCodEstudiante = :tCodEstudiante AND A.tCodParentesco = '02'`,
     {
       replacements: { tCodEstudiante },  // Pasar el valor del parámetro como `replacements`
       type: QueryTypes.SELECT
@@ -285,7 +289,7 @@ export const updateEstudiante = async (req: Request, res: Response) => {
   try {
 
     //  console.log("llego tipo docu " + tCodTipoDocumento);
-
+    // console.log("fecnac " + fNacimiento);
 
     // Ejecutamos la consulta UPDATE dentro de la transacción
     const result = await sequelize.query(

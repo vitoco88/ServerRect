@@ -4,7 +4,7 @@ import { query, Request, Response } from 'express'
 import Estudiante from '../models/Estudiante'
 import { QueryTypes, sequelize } from '../models/sequelize';
 import { Transaction } from 'sequelize';
- 
+
 
 
 
@@ -49,6 +49,86 @@ export const getNiveles = async (req: Request, res: Response) => {
 };
 
 
+// Cerrar la conexión solo cuando se apaga el servidor
+process.on("SIGINT", async () => {
+  await sequelize.close();
+  console.log("Conexión cerrada ✅");
+  process.exit(0);
+});
+
+
+
+export const getEstudentsFilter = async (req: Request, res: Response) => {
+
+  const { stringParam, fechaInicial, fechaFinal } = req.body;
+  try {
+
+    let nivelQuery = ""; // Por defecto, filtra por el parámetro recibido
+    let Horafinal = " 23:59:59";
+
+    // Si el parámetro es '04', significa que queremos incluir los tres niveles: Inicial, Primaria y Secundaria
+    if (stringParam === "04") {
+      nivelQuery = "e.tnivel IN ('01', '02', '03')";
+    }
+    if (stringParam == "01") {
+      nivelQuery = "e.tnivel = '01'";
+    }
+    if (stringParam == "02") {
+      nivelQuery = "e.tnivel = '02'";
+    }
+    if (stringParam == "03") {
+      nivelQuery = "e.tnivel = '03'";
+    } 
+
+
+    // Convertir las fechas si están en otro formato
+    const fechaInicioFormatted = new Date(fechaInicial).toISOString().split("T")[0];
+    const fechaFinFormatted = (fechaFinal) + " 23:59:59" ;
+
+
+//    console.log("fecha final  " + fechaFinFormatted)
+
+    const query = `SELECT e.tCodEstudiante, g.tDetallado AS Grado, t.tDetallado as TipoDocumentoEst, e.tNroDocumento, e.tCodSiagieEst, ISNULL(e.tAPaterno, '') as tAPaterno, 
+ISNULL(e.tAMaterno, '') as tAMaterno, ISNULL(e.tNombres,'') as tNombres,
+e.tSexo, e.fNacimiento, e.fRegistro, s.tDetallado as tDetSeguro, d.tDetallado as tDetDistrito, e.tDireccion, e.tTelefono, e.tEmail,
+CASE WHEN e.lDiscapacidad = 1 then 'SI' ELSE 'NO' END as tDiscapacidad, 
+case when e.tDiscapacidadObs is null then '' else e.tDiscapacidadObs end as DetalleObservacion ,
+CASE WHEN e.lExonaradoR = 1 then 'SI' ELSE 'NO' END as ExoneradoReligion, 
+n.tDetallado as tNivel, v.tdetallado as Vive, a.tdetallado as Apoderado,
+case when e.lHermanos = 1 then 'SI' else 'NO' end as tHermanos ,
+e.nCantHermanos, tNroDocumentoRepre, ISNULL(e.tAPaternoRepre, '') as tAPaternoRepre  , ISNULL(e.tAMaternoRepre,'') as tAMaternoRepre, isnull(e.tNombresRepre,'') as tNombresRepre, 
+r.tDetallado as TipoDocumentoRepre, e.tDireccionRepre, e.tTelefonoRepre, e.tEmailRepre, u.tdetallado
+FROM TESTUDIANTE e
+left join vGradosPrim g on e.tCodGrado = g.tCodigo
+left join vTipoDocumento t on e.tCodTipoDocumento = t.tCodigo
+left join vTipoSeguro s on e.tCodSeguro = s.tCodigo
+left join vDistrito d on e.tCodDistrito = d.tCodigo
+left join vNivel n on e.tNivel = n.tCodigo
+left join (SELECT TCODIGO, tDetallado FROM TTABLA WHERE tTabla = 'VIVE') v on e.tVive = v.tcodigo
+left join (sELECT TCODIGO, TDETALLADO FROM TTABLA WHERE TTABLA = 'APODERADO') a on e.tApoderado = a.tcodigo
+left join vTipoDocumento r on e.tTipoDocumentoRepre = r.tCodigo
+left join vparentesco u on e.tCodParentescoRepre = u.tcodigo
+ WHERE (e.fRegistro BETWEEN :fechaInicial AND :fechaFinal) and ${nivelQuery}
+ ORDER BY E.tNivel, E.tCodGrado,  E.tAPaterno`;  // Tu consulta SQL aquí
+
+    // console.log(query);
+
+    const results = await sequelize.query(query,
+      {
+        replacements: {
+          tNivel: stringParam,
+          fechaInicial: fechaInicial,       // Fecha de inicio
+          fechaFinal: fechaFinFormatted,
+        },
+        type: QueryTypes.SELECT
+      });
+    res.json(results);  // Enviar los resultados al frontend
+  } catch (error) {
+    //  console.error('Error fetching data:', error);
+    res.status(500).json({ error: 'Error fetching data from database' });
+  }
+
+};
 
 
 export const getGrado = async (req: Request, res: Response) => {
@@ -60,6 +140,7 @@ export const getGrado = async (req: Request, res: Response) => {
     //  console.error('Error fetching data:', error);
     res.status(500).json({ error: 'Error fetching data from database' });
   }
+
 };
 
 
@@ -177,8 +258,8 @@ export const getEstudiante = async (req: Request, res: Response) => {
     }
   );
 
- // console.log(" + " + result.fNacimiento);
- // console.log(result);
+  // console.log(" + " + result.fNacimiento);
+  // console.log(result);
   res.json(result);  // Enviar los resultados como respuesta
 
 };
